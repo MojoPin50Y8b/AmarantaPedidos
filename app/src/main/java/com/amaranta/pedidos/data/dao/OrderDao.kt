@@ -31,4 +31,14 @@ interface OrderDao {
 
     @Delete
     suspend fun delete(order: OrderEntity)
+
+    @Query("""
+    SELECT * FROM orders
+    WHERE status = 'ENTREGADO'
+      AND deliveredAtMillis IS NOT NULL
+      AND deliveredAtMillis BETWEEN :start AND :end
+    ORDER BY deliveredAtMillis DESC
+""")
+    fun observeDeliveredBetween(start: Long, end: Long): kotlinx.coroutines.flow.Flow<List<OrderEntity>>
+
 }

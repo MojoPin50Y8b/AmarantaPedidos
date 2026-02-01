@@ -29,5 +29,7 @@ data class OrderEntity(
     val cardMessage: String?,
 
     val notes: String?,
-    val status: String = "PENDIENTE"
+    val status: String = "PENDIENTE",
+
+    val deliveredAtMillis: Long? = null
 )

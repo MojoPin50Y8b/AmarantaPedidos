@@ -11,6 +11,7 @@ import com.amaranta.pedidos.viewmodel.OrdersViewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.amaranta.pedidos.ui.screens.OrderDetailScreen
+import com.amaranta.pedidos.ui.screens.DeliveredHistoryScreen
 
 @Composable
 fun AppNav(viewModel: OrdersViewModel, modifier: Modifier = Modifier) {
@@ -25,7 +26,8 @@ fun AppNav(viewModel: OrdersViewModel, modifier: Modifier = Modifier) {
             OrdersListScreen(
                 viewModel = viewModel,
                 onNewOrder = { navController.navigate(Routes.NEW) },
-                onOpenDetail = { id -> navController.navigate(Routes.detail(id)) }
+                onOpenDetail = { id -> navController.navigate(Routes.detail(id)) },
+                onOpenDelivered = { navController.navigate(Routes.DELIVERED) }
             )
         }
 
@@ -52,5 +54,11 @@ fun AppNav(viewModel: OrdersViewModel, modifier: Modifier = Modifier) {
             )
         }
 
+        composable(Routes.DELIVERED) {
+            DeliveredHistoryScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
     }
 }

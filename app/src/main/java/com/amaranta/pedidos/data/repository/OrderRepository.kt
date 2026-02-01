@@ -18,4 +18,6 @@ class OrderRepository(private val dao: OrderDao) {
 
     suspend fun delete(order: OrderEntity) = dao.delete(order)
 
+    fun observeDeliveredBetween(start: Long, end: Long) = dao.observeDeliveredBetween(start, end)
+
 }

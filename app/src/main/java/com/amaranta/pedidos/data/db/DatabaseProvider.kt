@@ -14,7 +14,8 @@ object DatabaseProvider {
                 context.applicationContext,
                 AppDatabase::class.java,
                 "amaranta.db"
-            ).build().also { INSTANCE = it }
+            ).fallbackToDestructiveMigration()
+                .build().also { INSTANCE = it }
         }
     }
 }

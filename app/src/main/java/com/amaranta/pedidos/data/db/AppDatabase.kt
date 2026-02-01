@@ -7,7 +7,7 @@ import com.amaranta.pedidos.data.entity.OrderEntity
 
 @Database(
     entities = [OrderEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

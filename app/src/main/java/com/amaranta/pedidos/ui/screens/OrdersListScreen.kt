@@ -22,18 +22,28 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.amaranta.pedidos.viewmodel.OrdersViewModel
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.TextButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrdersListScreen(
     viewModel: OrdersViewModel,
     onNewOrder: () -> Unit,
-    onOpenDetail: (Long) -> Unit
+    onOpenDetail: (Long) -> Unit,
+    onOpenDelivered: () -> Unit
 ) {
     val orders by viewModel.orders.collectAsStateWithLifecycle()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Pedidos de hoy") }) },
+        topBar = { TopAppBar(
+            title = { Text("Pedidos de hoy") },
+            actions = {
+                TextButton(onClick = { onOpenDelivered() }) {
+                    Text("Entregados")
+                }
+            }
+        )
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = onNewOrder) {
                 Text("+")

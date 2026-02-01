@@ -5,4 +5,5 @@ object Routes {
     const val NEW = "new"
     const val DETAIL = "detail/{id}"
     fun detail(id: Long) = "detail/$id"
+    const val DELIVERED = "delivered"
 }
