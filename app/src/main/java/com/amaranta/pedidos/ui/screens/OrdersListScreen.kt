@@ -20,12 +20,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.amaranta.pedidos.viewmodel.OrdersViewModel
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxWidth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrdersListScreen(
     viewModel: OrdersViewModel,
-    onNewOrder: () -> Unit
+    onNewOrder: () -> Unit,
+    onOpenDetail: (Long) -> Unit
 ) {
     val orders by viewModel.orders.collectAsStateWithLifecycle()
 
@@ -63,7 +66,10 @@ fun OrdersListScreen(
                 items(orders) { order ->
                     Text(
                         text = "${order.arrangementType} - ${order.eventType} (${order.phone})",
-                        modifier = Modifier.padding(vertical = 12.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onOpenDetail(order.id) }
+                            .padding(vertical = 12.dp)
                     )
                 }
             }

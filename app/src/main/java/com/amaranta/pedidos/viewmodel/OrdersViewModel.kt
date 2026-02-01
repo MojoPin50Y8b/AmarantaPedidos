@@ -9,6 +9,10 @@ import com.amaranta.pedidos.data.repository.OrderRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 
 class OrdersViewModel(app: Application) : AndroidViewModel(app) {
 
@@ -46,5 +50,31 @@ class OrdersViewModel(app: Application) : AndroidViewModel(app) {
                 status = "PENDIENTE"
             )
         )
+    }
+
+    private val selectedId = MutableStateFlow<Long?>(null)
+
+    val selectedOrder = selectedId
+        .flatMapLatest { id ->
+            if (id == null) flowOf(null) else repo.observeById(id)
+        }
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5_000), null)
+
+    fun selectOrder(id: Long) {
+        selectedId.value = id
+    }
+
+    fun deleteSelected() {
+        val order = selectedOrder.value ?: return
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            repo.delete(order)
+        }
+    }
+
+    fun markDeliveredSelected() {
+        val order = selectedOrder.value ?: return
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            repo.update(order.copy(status = "ENTREGADO"))
+        }
     }
 }

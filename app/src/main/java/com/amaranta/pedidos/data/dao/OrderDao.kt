@@ -22,4 +22,13 @@ interface OrderDao {
         ORDER BY createdAt DESC
     """)
     fun getByDay(start: Long, end: Long): Flow<List<OrderEntity>>
+
+    @Query("SELECT * FROM orders WHERE id = :id LIMIT 1")
+    suspend fun getById(id: Long): OrderEntity?
+
+    @Query("SELECT * FROM orders WHERE id = :id LIMIT 1")
+    fun observeById(id: Long): kotlinx.coroutines.flow.Flow<OrderEntity?>
+
+    @Delete
+    suspend fun delete(order: OrderEntity)
 }

@@ -8,6 +8,9 @@ import androidx.navigation.compose.rememberNavController
 import com.amaranta.pedidos.ui.screens.NewOrderScreen
 import com.amaranta.pedidos.ui.screens.OrdersListScreen
 import com.amaranta.pedidos.viewmodel.OrdersViewModel
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.amaranta.pedidos.ui.screens.OrderDetailScreen
 
 @Composable
 fun AppNav(viewModel: OrdersViewModel, modifier: Modifier = Modifier) {
@@ -21,7 +24,8 @@ fun AppNav(viewModel: OrdersViewModel, modifier: Modifier = Modifier) {
         composable(Routes.LIST) {
             OrdersListScreen(
                 viewModel = viewModel,
-                onNewOrder = { navController.navigate(Routes.NEW) }
+                onNewOrder = { navController.navigate(Routes.NEW) },
+                onOpenDetail = { id -> navController.navigate(Routes.detail(id)) }
             )
         }
 
@@ -34,5 +38,19 @@ fun AppNav(viewModel: OrdersViewModel, modifier: Modifier = Modifier) {
                 }
             )
         }
+
+        composable(
+            route = Routes.DETAIL,
+            arguments = listOf(navArgument("id") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getLong("id") ?: 0L
+            viewModel.selectOrder(id)
+
+            OrderDetailScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
     }
 }
