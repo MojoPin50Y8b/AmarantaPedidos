@@ -1,5 +1,6 @@
 package com.amaranta.pedidos.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,13 +23,16 @@ import java.time.ZoneId
 @Composable
 fun DeliveredHistoryScreen(
     viewModel: OrdersViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onOpenDetail: (Long) -> Unit
 ) {
     val orders by viewModel.deliveredOrders.collectAsStateWithLifecycle()
-    val mode by viewModel.deliveredMode.collectAsState()
-    val year by viewModel.deliveredYear.collectAsState()
-    val month by viewModel.deliveredMonth.collectAsState()
-    val day by viewModel.deliveredDay.collectAsState()
+
+    // ✅ lifecycle
+    val mode by viewModel.deliveredMode.collectAsStateWithLifecycle()
+    val year by viewModel.deliveredYear.collectAsStateWithLifecycle()
+    val month by viewModel.deliveredMonth.collectAsStateWithLifecycle()
+    val day by viewModel.deliveredDay.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -46,13 +50,11 @@ fun DeliveredHistoryScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Modo
             RowChips(
                 mode = mode,
                 onChange = { viewModel.deliveredMode.value = it }
             )
 
-            // Filtros año/mes/día
             FilterRow(
                 mode = mode,
                 year = year,
@@ -63,7 +65,6 @@ fun DeliveredHistoryScreen(
                 onDay = { viewModel.deliveredDay.value = it }
             )
 
-            // Agrupar por día
             val zoneId = ZoneId.systemDefault()
             val grouped = orders.groupBy { o ->
                 val millis = o.deliveredAtMillis ?: o.createdAt
@@ -83,11 +84,17 @@ fun DeliveredHistoryScreen(
                             )
                         }
                         items(list) { o ->
-                            ListItem(
-                                headlineContent = { Text("${o.arrangementType} - ${o.eventType}") },
-                                supportingContent = { Text("Tel: ${o.phone}  |  Estatus: ${o.status}") }
-                            )
-                            Divider()
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 6.dp)
+                                    .clickable { onOpenDetail(o.id) }
+                            ) {
+                                ListItem(
+                                    headlineContent = { Text("${o.arrangementType} - ${o.eventType}") },
+                                    supportingContent = { Text("Tel: ${o.phone}  |  Estatus: ${o.status}") }
+                                )
+                            }
                         }
                     }
                 }
@@ -149,9 +156,18 @@ private fun FilterRow(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DropdownInt(label: String, value: Int, options: List<Int>, onPick: (Int) -> Unit) {
+private fun DropdownInt(
+    label: String,
+    value: Int,
+    options: List<Int>,
+    onPick: (Int) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
         OutlinedTextField(
             value = value.toString(),
             onValueChange = {},
@@ -162,11 +178,17 @@ private fun DropdownInt(label: String, value: Int, options: List<Int>, onPick: (
                 .fillMaxWidth()
                 .menuAnchor()
         )
-        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
             options.forEach { opt ->
                 DropdownMenuItem(
                     text = { Text(opt.toString()) },
-                    onClick = { onPick(opt); expanded = false }
+                    onClick = {
+                        onPick(opt)
+                        expanded = false
+                    }
                 )
             }
         }

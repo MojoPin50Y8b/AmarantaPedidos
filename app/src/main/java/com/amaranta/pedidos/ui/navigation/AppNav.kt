@@ -2,16 +2,16 @@ package com.amaranta.pedidos.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.amaranta.pedidos.ui.screens.DeliveredHistoryScreen
 import com.amaranta.pedidos.ui.screens.NewOrderScreen
+import com.amaranta.pedidos.ui.screens.OrderDetailScreen
 import com.amaranta.pedidos.ui.screens.OrdersListScreen
 import com.amaranta.pedidos.viewmodel.OrdersViewModel
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
-import com.amaranta.pedidos.ui.screens.OrderDetailScreen
-import com.amaranta.pedidos.ui.screens.DeliveredHistoryScreen
 
 @Composable
 fun AppNav(viewModel: OrdersViewModel, modifier: Modifier = Modifier) {
@@ -26,7 +26,10 @@ fun AppNav(viewModel: OrdersViewModel, modifier: Modifier = Modifier) {
             OrdersListScreen(
                 viewModel = viewModel,
                 onNewOrder = { navController.navigate(Routes.NEW) },
-                onOpenDetail = { id -> navController.navigate(Routes.detail(id)) },
+                onOpenDetail = { id ->
+                    viewModel.selectOrder(id)              // ✅ selección antes
+                    navController.navigate(Routes.detail(id))
+                },
                 onOpenDelivered = { navController.navigate(Routes.DELIVERED) }
             )
         }
@@ -46,7 +49,7 @@ fun AppNav(viewModel: OrdersViewModel, modifier: Modifier = Modifier) {
             arguments = listOf(navArgument("id") { type = NavType.LongType })
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getLong("id") ?: 0L
-            viewModel.selectOrder(id)
+            viewModel.selectOrder(id) // ✅ ok dejarlo también
 
             OrderDetailScreen(
                 viewModel = viewModel,
@@ -57,7 +60,11 @@ fun AppNav(viewModel: OrdersViewModel, modifier: Modifier = Modifier) {
         composable(Routes.DELIVERED) {
             DeliveredHistoryScreen(
                 viewModel = viewModel,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onOpenDetail = { id ->
+                    viewModel.selectOrder(id)              // ✅ selección antes
+                    navController.navigate(Routes.detail(id))
+                }
             )
         }
     }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -25,15 +26,26 @@ fun OrderDetailScreen(
     val order by viewModel.selectedOrder.collectAsStateWithLifecycle()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Detalle del pedido") }) }
+        topBar = {
+            TopAppBar(
+                title = { Text("Detalle del pedido") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) { Text("<") }
+                }
+            )
+        }
     ) { padding ->
         Column(
-            modifier = Modifier.padding(padding).padding(16.dp),
+            modifier = Modifier
+                .padding(padding)
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             if (order == null) {
                 Text("Cargando pedido...")
-                Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) { Text("Volver") }
+                Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
+                    Text("Volver")
+                }
                 return@Column
             }
 
@@ -45,10 +57,12 @@ fun OrderDetailScreen(
             Text("Tipo: ${o.arrangementType}")
             Text("Evento: ${o.eventType}")
             Text("Entrega: ${if (o.requiresDelivery) "Sí" else "No"}")
+
             if (o.requiresDelivery) {
                 Text("Dirección: ${o.deliveryAddress ?: "—"}")
                 Text("Alterno: ${o.alternateReceiver ?: "—"}")
             }
+
             Text("Colores: ${o.colors ?: "—"}")
             Text("Flores: ${o.flowers ?: "—"}")
             Text("Cantidad: ${o.flowerQuantity?.toString() ?: "—"}")
@@ -57,20 +71,32 @@ fun OrderDetailScreen(
             Text("Notas: ${o.notes ?: "—"}")
             Text("Estatus: ${o.status}")
 
-            Button(
-                onClick = { viewModel.markDeliveredSelected(); onBack() },
-                modifier = Modifier.fillMaxWidth()
-            ) { Text("Marcar como ENTREGADO") }
+            // ✅ Solo si está pendiente
+            if (o.status != "ENTREGADO") {
+                Button(
+                    onClick = {
+                        viewModel.markDeliveredSelected()
+                        onBack()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Marcar como ENTREGADO")
+                }
+            }
 
             Button(
                 onClick = { viewModel.deleteSelected(); onBack() },
                 modifier = Modifier.fillMaxWidth()
-            ) { Text("Eliminar pedido") }
+            ) {
+                Text("Eliminar pedido")
+            }
 
             Button(
                 onClick = onBack,
                 modifier = Modifier.fillMaxWidth()
-            ) { Text("Volver") }
+            ) {
+                Text("Volver")
+            }
         }
     }
 }

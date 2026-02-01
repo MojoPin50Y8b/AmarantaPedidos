@@ -24,10 +24,8 @@ class OrdersViewModel(app: Application) : AndroidViewModel(app) {
         DatabaseProvider.get(app).orderDao()
     )
 
-    // -------------------------
-    // LISTA PRINCIPAL (TODOS)
-    // -------------------------
-    val orders = repo.getAll()
+    // ✅ LISTA PRINCIPAL: SOLO PENDIENTES
+    val orders = repo.observePending()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     fun add(order: OrderEntity) {
@@ -36,7 +34,6 @@ class OrdersViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    // Solo para pruebas
     fun insertDummyOrder() {
         add(
             OrderEntity(
@@ -61,9 +58,9 @@ class OrdersViewModel(app: Application) : AndroidViewModel(app) {
         )
     }
 
-    // -------------------------
+    // ----------------------------
     // DETALLE SELECCIONADO
-    // -------------------------
+    // ----------------------------
     private val selectedId = MutableStateFlow<Long?>(null)
 
     val selectedOrder = selectedId
@@ -95,22 +92,9 @@ class OrdersViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    // (Opcional) Para desmarcar entregado y regresarlo a PENDIENTE
-    fun markPendingSelected() {
-        val order = selectedOrder.value ?: return
-        viewModelScope.launch(Dispatchers.IO) {
-            repo.update(
-                order.copy(
-                    status = "PENDIENTE",
-                    deliveredAtMillis = null
-                )
-            )
-        }
-    }
-
-    // -------------------------
-    // HISTORIAL DE ENTREGADOS
-    // -------------------------
+    // ----------------------------
+    // ENTREGADOS (HISTORIAL)
+    // ----------------------------
     enum class DeliveredFilterMode { DAY, MONTH, YEAR }
 
     private val zoneId = ZoneId.systemDefault()
@@ -120,19 +104,20 @@ class OrdersViewModel(app: Application) : AndroidViewModel(app) {
     val deliveredMonth = MutableStateFlow(LocalDate.now().monthValue) // 1..12
     val deliveredDay = MutableStateFlow(LocalDate.now().dayOfMonth)
 
+    // ✅ IMPORTANTE: END EXCLUSIVO (sin -1)
     private fun dayRangeMillis(year: Int, month: Int, day: Int): Pair<Long, Long> {
         val start = LocalDate.of(year, month, day)
             .atStartOfDay(zoneId).toInstant().toEpochMilli()
         val end = LocalDate.of(year, month, day)
-            .plusDays(1).atStartOfDay(zoneId).toInstant().toEpochMilli() - 1
+            .plusDays(1).atStartOfDay(zoneId).toInstant().toEpochMilli()
         return start to end
     }
 
     private fun monthRangeMillis(year: Int, month: Int): Pair<Long, Long> {
         val ym = YearMonth.of(year, month)
         val start = ym.atDay(1).atStartOfDay(zoneId).toInstant().toEpochMilli()
-        val end = ym.atEndOfMonth()
-            .plusDays(1).atStartOfDay(zoneId).toInstant().toEpochMilli() - 1
+        val end = ym.atEndOfMonth().plusDays(1)
+            .atStartOfDay(zoneId).toInstant().toEpochMilli()
         return start to end
     }
 
@@ -140,18 +125,11 @@ class OrdersViewModel(app: Application) : AndroidViewModel(app) {
         val start = LocalDate.of(year, 1, 1)
             .atStartOfDay(zoneId).toInstant().toEpochMilli()
         val end = LocalDate.of(year + 1, 1, 1)
-            .atStartOfDay(zoneId).toInstant().toEpochMilli() - 1
+            .atStartOfDay(zoneId).toInstant().toEpochMilli()
         return start to end
     }
 
-    // helper simple (porque Kotlin no trae Quad)
-    data class Quad<A, B, C, D>(
-        val first: A,
-        val second: B,
-        val third: C,
-        val fourth: D
-    )
-
+    // ✅ ENTREGADOS: SOLO status='ENTREGADO' + FILTRO POR RANGO
     val deliveredOrders = combine(
         deliveredMode,
         deliveredYear,
@@ -175,4 +153,12 @@ class OrdersViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    // Helper simple (porque Kotlin no trae Quad)
+    data class Quad<A, B, C, D>(
+        val first: A,
+        val second: B,
+        val third: C,
+        val fourth: D
+    )
 }
