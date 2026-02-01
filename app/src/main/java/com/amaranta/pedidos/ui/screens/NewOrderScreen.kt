@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import com.amaranta.pedidos.data.entity.OrderEntity
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 
 private val ARRANGEMENTS = listOf("RAMO", "CANASTA", "ARREGLO", "OTRO")
 private val EVENTS =
@@ -228,7 +230,11 @@ fun NewOrderScreen(
 
             Button(
                 onClick = onBack,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) { Text("Cancelar") }
 
             Button(
@@ -257,7 +263,11 @@ fun NewOrderScreen(
                     onSave(order)
                 },
                 enabled = canSave,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) { Text("Guardar pedido") }
 
             if (!phoneOk) Text("Teléfono inválido (mínimo 7 dígitos).")
