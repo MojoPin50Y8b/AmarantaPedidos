@@ -60,7 +60,7 @@ fun AppNav(viewModel: OrdersViewModel, modifier: Modifier = Modifier) {
         composable(Routes.DELIVERED) {
             DeliveredHistoryScreen(
                 viewModel = viewModel,
-                onBack = { navController.popBackStack() },
+                onBack = { navController.navigate(Routes.LIST) { popUpTo(Routes.LIST) { inclusive = true } } },
                 onOpenDetail = { id ->
                     viewModel.selectOrder(id)              // ✅ selección antes
                     navController.navigate(Routes.detail(id))

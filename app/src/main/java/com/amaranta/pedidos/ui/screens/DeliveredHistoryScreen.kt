@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,6 +19,8 @@ import com.amaranta.pedidos.viewmodel.OrdersViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,7 +42,9 @@ fun DeliveredHistoryScreen(
             TopAppBar(
                 title = { Text("Entregados") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) { Text("<") }
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Default.Home, contentDescription = "Inicio")
+                    }
                 }
             )
         }
@@ -71,7 +76,11 @@ fun DeliveredHistoryScreen(
                 Instant.ofEpochMilli(millis).atZone(zoneId).toLocalDate()
             }.toSortedMap(compareByDescending { it })
 
-            LazyColumn(contentPadding = PaddingValues(bottom = 16.dp)) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 if (orders.isEmpty()) {
                     item { Text("No hay pedidos entregados en este filtro.") }
                 } else {

@@ -35,14 +35,15 @@ fun OrdersListScreen(
     val orders by viewModel.orders.collectAsStateWithLifecycle()
 
     Scaffold(
-        topBar = { TopAppBar(
-            title = { Text("Pedidos de hoy") },
-            actions = {
-                TextButton(onClick = { onOpenDelivered() }) {
-                    Text("Entregados")
+        topBar = {
+            TopAppBar(
+                title = { Text("Pedidos de hoy") },
+                actions = {
+                    TextButton(onClick = { onOpenDelivered() }) {
+                        Text("Entregados")
+                    }
                 }
-            }
-        )
+            )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onNewOrder) {
@@ -67,11 +68,13 @@ fun OrdersListScreen(
             }
         } else {
             LazyColumn(
+                modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     start = 16.dp, end = 16.dp,
                     top = padding.calculateTopPadding() + 8.dp,
                     bottom = 16.dp
-                )
+                ),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(orders) { order ->
                     Text(
